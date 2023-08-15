@@ -21,6 +21,7 @@ export declare class CanvasEmoji {
     drawPngReplaceEmoji(data: DrawPngReplaceEmojiParams): {
         x: number;
     };
+    getEmojiCdnImageSize(emojiSize: number): number;
     drawPngReplaceEmojiWithEmojicdn(data: DrawPngReplaceEmojiParams): Promise<{
         x: number;
     }>;

@@ -28,18 +28,42 @@ function drawPngReplaceEmoji() {
 }
 
 async function drawPngReplaceEmojiWithEmojicdn() {
-    const canvas = createCanvas(800, 200);
+    const canvas = createCanvas(0, 0);
     const canvasCtx = canvas.getContext("2d");
     const canvasEmoji = new CanvasEmoji(canvasCtx);
+
+    const text = "🐰+🍬";
+    const fontSize = 300;
+    const { width: textWidth } = canvasCtx.measureText(text);
+    const emojiCount = canvasEmoji.getEmojiKeys(text).length;
+    const wordCount = text.length - (emojiCount * 2);
+    
+    const estimatedWidthByTextWidth = textWidth / 0.0625;
+    const estimatedWidthByCalc = fontSize * emojiCount + wordCount * fontSize * 0.6;
+
+    const estimatedWidth = Math.max(estimatedWidthByCalc, estimatedWidthByTextWidth); // Adjust canvas width based on text and emoji size
+
+    console.log("MeasureText: ", JSON.stringify(canvasCtx.measureText(text)));
+    console.log("#Emoji: ", emojiCount)
+    console.log("#Word: ", wordCount)
+    console.log("TextLength: " , text.length);
+    console.log("TextWidth: " , textWidth);
+    console.log("estimatedWidth: " , estimatedWidth);
+
+    const canvasWidth = estimatedWidth; // Adjust canvas width based on text and emoji size
+    const canvasHeight = fontSize; // Adjust canvas height based on the maximum of text and emoji size
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
     const a = await canvasEmoji.drawPngReplaceEmojiWithEmojicdn({
-        text: "	🚼测试一下哦💋💃测试一下💋测试一下💋💃测试一下💋测试一下💋💃",
+        text: text,
         fillStyle: "#000000",
-        font: "bold 200px Impact",
+        font: `${fontSize}px Arial`,
         x: 0,
-        y: 100,
-        emojiW: 12,
-        emojiH: 12,
-        length: 20,
+        y: fontSize * 0.83,
+        emojiW: fontSize,
+        emojiH: fontSize,
         emojiStyle: 'apple'
     });
     const out = fs.createWriteStream(__dirname + "/test2.png");
@@ -49,5 +73,5 @@ async function drawPngReplaceEmojiWithEmojicdn() {
     return a;
 }
 
-console.log(drawPngReplaceEmoji());
+//console.log(drawPngReplaceEmoji());
 drawPngReplaceEmojiWithEmojicdn();
