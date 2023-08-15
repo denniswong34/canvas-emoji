@@ -120,6 +120,14 @@ export class CanvasEmoji {
     return { x };
   }
 
+  getEmojiCdnImageSize(emojiSize:number) {
+    if(emojiSize <= 72)
+      return 72;
+    if(emojiSize >= 512)
+      return 512;
+    return emojiSize;
+  }
+
   async drawPngReplaceEmojiWithEmojicdn(data: DrawPngReplaceEmojiParams) {
     const { fillStyle, font, y, emojiW, emojiH, emojiStyle = 'google' } = data;
     const { canvasCtx } = this;
@@ -135,7 +143,7 @@ export class CanvasEmoji {
     const emojiSet = new Set();
     const emojiMap = new Map();
     const fun = async (emojiItem: string) => {
-      const url = encodeURI(`https://emojiapi.dev/api/v1/${emojiItem.replace('{', '').replace('}', '')}/72.png`);
+      const url = encodeURI(`https://emojiapi.dev/api/v1/${emojiItem.replace('{', '').replace('}', '')}/${this.getEmojiCdnImageSize(emojiW)}.png`);
       console.log("url: ", url);
       const emojiImg = await loadImage(url);
       emojiMap.set(emojiItem, emojiImg);
