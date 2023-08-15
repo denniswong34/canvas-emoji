@@ -12,7 +12,7 @@ class CanvasEmoji {
     getEmojiKeys(str) {
         const emojiArr = [];
         emoji.replace(str, (item) => {
-            emojiArr.push(`${item.key}`);
+            emojiArr.push(`${item.emoji.codePointAt(0).toString(16)}`);
         });
         return emojiArr;
     }
@@ -35,8 +35,8 @@ class CanvasEmoji {
         canvasCtx.font = font;
         const emojiArr = [];
         text = emoji.replace(text, (item) => {
-            emojiArr.push(`{${item.key}}`);
-            return `{${item.key}}`;
+            emojiArr.push(`{${item.emoji.codePointAt(0).toString(16)}}`);
+            return `{${item.emoji.codePointAt(0).toString(16)}}`;
         });
         let ctxText;
         let i = 0;
@@ -53,11 +53,11 @@ class CanvasEmoji {
             ctxText = canvasCtx.measureText(text.substring(0, index));
             x += ctxText.width;
             const emojiImg = new canvas_1.Image();
-            const emojiName = emojiItem.replace('{', '').replace('}', '');
-            let src = emojiMap.get(emojiName);
+            const emojiUnicode = emojiItem.replace('{', '').replace('}', '');
+            let src = emojiMap.get(emojiUnicode);
             if (!src) {
-                src = fs.readFileSync(path.join(__dirname, `../emoji_pngs/${emojiName}.png`));
-                emojiMap.set(emojiName, src);
+                src = fs.readFileSync(path.join(__dirname, `../emoji_pngs/openmoji/${emojiUnicode}.png`));
+                emojiMap.set(emojiUnicode, src);
             }
             emojiImg.src = src;
             canvasCtx.drawImage(emojiImg, x, y - (5 / 6) * emojiH, emojiW, emojiH);
@@ -97,14 +97,15 @@ class CanvasEmoji {
         let { text, x, length } = data;
         const emojiArr = [];
         text = emoji.replace(text, (item) => {
-            emojiArr.push(`{${item.key}}`);
-            return `{${item.key}}`;
+            emojiArr.push(`{${item.emoji.codePointAt(0).toString(16)}}`);
+            return `{${item.emoji.codePointAt(0).toString(16)}}`;
         });
         const loadImages = [];
         const emojiSet = new Set();
         const emojiMap = new Map();
         const fun = async (emojiItem) => {
-            const url = encodeURI(`https://emojicdn.elk.sh/${emojiItem.replace('{', '').replace('}', '')}?style=${emojiStyle}`);
+            const url = encodeURI(`https://emojiapi.dev/api/v1/${emojiItem.replace('{', '').replace('}', '')}/72.png`);
+            console.log("url: ", url);
             const emojiImg = await (0, canvas_1.loadImage)(url);
             emojiMap.set(emojiItem, emojiImg);
         };
