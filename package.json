@@ -21,8 +21,11 @@
   },
   "homepage": "https://github.com/realcxj1989/canvas-emoji#readme",
   "dependencies": {
+    "@types/svg2png": "^4.1.2",
     "canvas": "^2.9.3",
-    "node-emoji": "^1.11.0"
+    "jimp": "^0.22.10",
+    "node-emoji": "^1.11.0",
+    "svg2png": "^4.1.1"
   },
   "devDependencies": {
     "@types/node": "^18.7.5",

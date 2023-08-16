@@ -3,6 +3,7 @@ import { CanvasRenderingContext2D, Image, loadImage } from 'canvas';
 import * as emoji from 'node-emoji';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as svg2png from 'svg2png';
 
 export interface DrawPngReplaceEmojiParams {
   text: string;
@@ -55,7 +56,7 @@ export class CanvasEmoji {
    *
    * @param data
    */
-  drawPngReplaceEmoji(data: DrawPngReplaceEmojiParams) {
+  async drawPngReplaceEmoji(data: DrawPngReplaceEmojiParams) {
     const { canvasCtx } = this;
     const { fillStyle, font, y, emojiW, emojiH } = data;
     let { text, x, length } = data;
@@ -85,11 +86,11 @@ export class CanvasEmoji {
       let src = emojiMap.get(emojiUnicode);
       if (!src) {
         src = fs.readFileSync(
-          path.join(__dirname, `../emoji_pngs/openmoji/${emojiUnicode}.png`),
+          path.join(__dirname, `../emoji_svgs/${emojiUnicode}.svg`),
         );
         emojiMap.set(emojiUnicode, src);
       }
-      emojiImg.src = src;
+      emojiImg.src = await svg2png(src, {width:data.emojiW, height: data.emojiH});
       canvasCtx.drawImage(emojiImg, x, y - (5 / 6) * emojiH, emojiW, emojiH);
       x += emojiW;
       text = text.substr(index + emojiItem.length);

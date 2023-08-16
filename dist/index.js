@@ -5,6 +5,7 @@ const canvas_1 = require("canvas");
 const emoji = require("node-emoji");
 const fs = require("fs");
 const path = require("path");
+const svg2png = require("svg2png");
 class CanvasEmoji {
     constructor(ctx) {
         this.canvasCtx = ctx;
@@ -27,7 +28,7 @@ class CanvasEmoji {
             emojiArr,
         };
     }
-    drawPngReplaceEmoji(data) {
+    async drawPngReplaceEmoji(data) {
         const { canvasCtx } = this;
         const { fillStyle, font, y, emojiW, emojiH } = data;
         let { text, x, length } = data;
@@ -56,10 +57,10 @@ class CanvasEmoji {
             const emojiUnicode = emojiItem.replace('{', '').replace('}', '');
             let src = emojiMap.get(emojiUnicode);
             if (!src) {
-                src = fs.readFileSync(path.join(__dirname, `../emoji_pngs/openmoji/${emojiUnicode}.png`));
+                src = fs.readFileSync(path.join(__dirname, `../emoji_svgs/${emojiUnicode}.svg`));
                 emojiMap.set(emojiUnicode, src);
             }
-            emojiImg.src = src;
+            emojiImg.src = await svg2png(src, { width: data.emojiW, height: data.emojiH });
             canvasCtx.drawImage(emojiImg, x, y - (5 / 6) * emojiH, emojiW, emojiH);
             x += emojiW;
             text = text.substr(index + emojiItem.length);

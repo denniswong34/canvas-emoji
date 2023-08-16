@@ -1,24 +1,27 @@
 const {createCanvas} = require('canvas');
 const {CanvasEmoji} = require('../dist/index');
+const emoji = require('node-emoji');
 const fs = require('fs');
+const Jimp = require('jimp');
 
 
-function drawPngReplaceEmoji() {
-    const canvas = createCanvas(5000, 500);
+async function drawPngReplaceEmoji() {
+    const canvas = createCanvas(2000, 2000);
     const canvasCtx = canvas.getContext("2d");
     const canvasEmoji = new CanvasEmoji(canvasCtx);
-    
-    const keys = canvasEmoji.getEmojiKeys("💋💃");
+    const text = "👨‍🔧 + 🐊";
+
+    const keys = canvasEmoji.getEmojiKeys(text);
     console.log("Keys: ", keys);
 
-    const a = canvasEmoji.drawPngReplaceEmoji({
-        text: "🚼🚼🚼测试一下💋💃",
+    const a = await canvasEmoji.drawPngReplaceEmoji({
+        text: text,
         fillStyle: "#000000",
         font: "bold 200px Impact",
         x: 0,
-        y: 200,
-        emojiW: 200,
-        emojiH: 200
+        y: 800,
+        emojiW: 800,
+        emojiH: 800
     });
     const out = fs.createWriteStream(__dirname + "/test.png");
     const stream = canvas.createPNGStream();
@@ -32,13 +35,15 @@ async function drawPngReplaceEmojiWithEmojicdn() {
     const canvasCtx = canvas.getContext("2d");
     const canvasEmoji = new CanvasEmoji(canvasCtx);
 
-    const text = "🐰+🍬";
+    const text = "👨‍🔧 + 🐊";
+    const pureText = emoji.strip(text);
+    console.log(`PureText: **${pureText}**`);
     const fontSize = 300;
     const { width: textWidth } = canvasCtx.measureText(text);
     const emojiCount = canvasEmoji.getEmojiKeys(text).length;
-    const wordCount = text.length - (emojiCount * 2);
-    
-    const estimatedWidthByTextWidth = textWidth / 0.0625;
+    const wordCount = pureText.length;
+
+    const estimatedWidthByTextWidth = textWidth / 0.0625 * 2;
     const estimatedWidthByCalc = fontSize * emojiCount + wordCount * fontSize * 0.6;
 
     const estimatedWidth = Math.max(estimatedWidthByCalc, estimatedWidthByTextWidth); // Adjust canvas width based on text and emoji size
@@ -66,12 +71,23 @@ async function drawPngReplaceEmojiWithEmojicdn() {
         emojiH: fontSize,
         emojiStyle: 'apple'
     });
-    const out = fs.createWriteStream(__dirname + "/test2.png");
-    const stream = canvas.createPNGStream();
-    stream.pipe(out);
-    out.on("finish", () => console.log("The PNG file was created."));
-    return a;
+    //const out = fs.createWriteStream(__dirname + "/test2.png");
+    //const stream = canvas.createPNGStream();
+
+    const image = await Jimp.read(canvas.toBuffer());
+
+    // Auto-crop the image based on the object boundaries
+    image.autocrop();
+
+    // Save the resulting image
+    await image.writeAsync("test/test2.png");
+
+    //stream.pipe(out);
+
+    //return new Promise((res) => {
+    //    out.on("finish", () => res(a));
+    //});
 }
 
-//console.log(drawPngReplaceEmoji());
-drawPngReplaceEmojiWithEmojicdn();
+drawPngReplaceEmoji();
+//drawPngReplaceEmojiWithEmojicdn();
